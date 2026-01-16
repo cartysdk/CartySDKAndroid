@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/splash_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/drawable_carty_btn"
+            android:stateListAnimator="@animator/anim_carty_btn"
+            android:text="splash"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/reward_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/drawable_carty_btn"
+            android:stateListAnimator="@animator/anim_carty_btn"
+            android:text="reward"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/interstitial_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/drawable_carty_btn"
+            android:stateListAnimator="@animator/anim_carty_btn"
+            android:text="interstitial"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/banner_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/drawable_carty_btn"
+            android:stateListAnimator="@animator/anim_carty_btn"
+            android:text="banner"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/native_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/drawable_carty_btn"
+            android:stateListAnimator="@animator/anim_carty_btn"
+            android:text="native"
+            android:textColor="#ffffff" />
+
+    </LinearLayout>
+
+</FrameLayout>
