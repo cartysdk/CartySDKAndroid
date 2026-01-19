@@ -47,5 +47,5 @@ dependencies {
     implementation libs.material
     implementation libs.coil
 
-    implementation "io.github.cartysdk:CartySdk:+"
+    implementation "io.carty.bidad:carty-sdk:+"
 }

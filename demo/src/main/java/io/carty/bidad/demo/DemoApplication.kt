@@ -14,6 +14,7 @@ class DemoApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        initSdk()
     }
 
     fun initSdk() {

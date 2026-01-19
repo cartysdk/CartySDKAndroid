@@ -39,7 +39,7 @@ class RewardActivity : BaseActivity(), CTRewardAdListener {
     private fun loadAd() {
         val adRequest = CTAdRequest.Builder()
             .setPlacementId(placementId)
-            .setMute(false)// 视频广告是否静音播放 SDK默认false
+            .setMute(true)
             .build()
         ctReward = CTReward(adRequest)
         ctReward?.apply {
