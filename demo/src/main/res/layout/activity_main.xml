@@ -18,7 +18,7 @@
             android:layout_marginTop="15dp"
             android:background="@drawable/drawable_carty_btn"
             android:stateListAnimator="@animator/anim_carty_btn"
-            android:text="splash"
+            android:text="AppOpen"
             android:textColor="#ffffff" />
 
         <Button

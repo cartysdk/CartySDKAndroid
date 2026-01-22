@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.SplashActivity" />
+        <activity android:name=".ui.AppOpenActivity" />
         <activity android:name=".ui.InterstitialActivity" />
         <activity android:name=".ui.RewardActivity" />
         <activity android:name=".ui.BannerActivity" />

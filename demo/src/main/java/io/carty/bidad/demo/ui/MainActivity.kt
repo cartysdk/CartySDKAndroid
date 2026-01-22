@@ -13,7 +13,7 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
 
         binding.splashBtn.setOnClickListener {
-            startActivity(SplashActivity::class.java)
+            startActivity(AppOpenActivity::class.java)
         }
 
         binding.rewardBtn.setOnClickListener {
