@@ -19,8 +19,19 @@ dependencyResolutionManagement {
         flatDir {
             dirs "${rootDir}/demo/libs"
         }
+        maven {
+            url "https://jfrog.anythinktech.com/artifactory/overseas_sdk"
+        }
+        maven {
+            url 'https://artifacts.applovin.com/android'
+        }
     }
 }
 
 rootProject.name = "CartySDKAndroid"
 include ':demo'
+include ':adapter:admob'
+include ':adapter:levelplay'
+include ':adapter:max'
+include ':adapter:topon'
+include ':adapter:tradplus'

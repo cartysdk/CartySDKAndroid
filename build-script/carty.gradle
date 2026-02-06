@@ -1,0 +1,3 @@
+dependencies {
+    implementation "io.carty.bidad:carty-sdk:+"
+}

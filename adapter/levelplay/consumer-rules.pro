@@ -1,0 +1,1 @@
+-keep class com.ironsource.adapters.custom.carty.** { *; }

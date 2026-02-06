@@ -27,7 +27,6 @@ class NativeActivity : BaseActivity(), CTNativeLoadListener, CTNativeAdListener 
         binding = ActivityNativeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 创建原生广告布局并将其添加到容器中
         nativeLayout = layoutInflater.inflate(R.layout.layout_native, null, false)
         nativeBinding = LayoutNativeBinding.bind(nativeLayout)
 

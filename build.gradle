@@ -1,8 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
     alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.android) apply false
 }
+
+apply from: 'build-script/adapter.gradle'
 
 subprojects {
     afterEvaluate {
@@ -14,6 +17,32 @@ subprojects {
 
                 lint {
                     abortOnError false
+                }
+            }
+        }
+
+        if (it.plugins.hasPlugin('com.android.application')) {
+            android {
+                buildFeatures {
+                    viewBinding true
+                }
+
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+
+                kotlinOptions {
+                    jvmTarget = '17'
+                }
+            }
+        }
+
+        if (it.plugins.hasPlugin('com.android.library')) {
+            android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_11
+                    targetCompatibility JavaVersion.VERSION_11
                 }
             }
         }

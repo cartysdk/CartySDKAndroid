@@ -1,10 +1,6 @@
 package io.carty.bidad.demo.ui
 
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import io.carty.bidad.demo.databinding.ActivityAppOpenBinding
 import io.carty.bidad.sdk.openapi.CTAdError
 import io.carty.bidad.sdk.openapi.CTAdRequest
@@ -14,8 +10,6 @@ import io.carty.bidad.sdk.openapi.splash.CTSplashAdListener
 
 class AppOpenActivity : BaseActivity(), CTSplashAdListener {
     private lateinit var binding: ActivityAppOpenBinding
-    private lateinit var inAnim: Animation
-    private lateinit var outAnim: Animation
     private var splash: CTSplash? = null
     private val placementId = SPLASH_PLACEMENT_ID
 
@@ -27,35 +21,12 @@ class AppOpenActivity : BaseActivity(), CTSplashAdListener {
         binding.loadBtn.setOnClickListener {
             loadAd()
         }
-
-        inAnim = AnimationUtils.loadAnimation(
-            this@AppOpenActivity,
-            android.R.anim.fade_in
-        )
-
-        outAnim = AnimationUtils.loadAnimation(
-            this@AppOpenActivity,
-            android.R.anim.fade_out
-        )
-
-        outAnim.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(animation: Animation?) {
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-                binding.adLl.visibility = View.GONE
-            }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-            }
-        })
     }
 
     fun loadAd() {
         val adRequest = CTAdRequest.Builder()
             .setPlacementId(placementId)
             .setMute(true)
-            .setLandscape(false)
             .build()
         splash = CTSplash(adRequest).apply {
             setSplashAdListener(this@AppOpenActivity)
@@ -66,17 +37,7 @@ class AppOpenActivity : BaseActivity(), CTSplashAdListener {
 
     override fun onLoaded(baseAd: CTBaseAd) {
         binding.statusTv.append("\nappOpen loaded")
-        val splashView = splash?.getSplashView(this@AppOpenActivity)
-        splashView?.apply {
-            binding.adLl.visibility = View.VISIBLE
-            binding.adContainer.addView(
-                this,
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            binding.adLl.startAnimation(inAnim)
-        } ?: run {
-            binding.statusTv.append("\nappOpen view is null")
-        }
+        splash?.showAd(this)
     }
 
     override fun onLoadFailed(adError: CTAdError?) {
@@ -85,8 +46,6 @@ class AppOpenActivity : BaseActivity(), CTSplashAdListener {
 
     override fun onClosed(baseAd: CTBaseAd) {
         binding.statusTv.append("\nappOpen closed")
-        binding.adLl.startAnimation(outAnim)
-        splash?.destroy()
         splash = null
     }
 
@@ -100,13 +59,5 @@ class AppOpenActivity : BaseActivity(), CTSplashAdListener {
 
     override fun onClicked(baseAd: CTBaseAd) {
         binding.statusTv.append("\nappOpen clicked")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        inAnim.setAnimationListener(null)
-        outAnim.setAnimationListener(null)
-        binding.adLl.clearAnimation()
-        splash?.destroy()
     }
 }

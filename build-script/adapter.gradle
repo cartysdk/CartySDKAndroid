@@ -1,0 +1,15 @@
+ext {
+    deps = [
+            admob             : "com.google.android.gms:play-services-ads:${AD_MOB_VERSION_NAME}",
+            levelplay         : "com.unity3d.ads-mediation:mediation-sdk:${LEVEL_PLAY_VERSION_NAME}",
+            max               : "com.applovin:applovin-sdk:${MAX_VERSION_NAME}",
+            topon_core        : "com.anythink.sdk:core-tpn:${TOP_ON_VERSION_NAME}",
+            topon_native      : "com.anythink.sdk:nativead-tpn:${TOP_ON_VERSION_NAME}",
+            topon_banner      : "com.anythink.sdk:banner-tpn:${TOP_ON_VERSION_NAME}",
+            topon_interstitial: "com.anythink.sdk:interstitial-tpn:${TOP_ON_VERSION_NAME}",
+            topon_reward      : "com.anythink.sdk:rewardedvideo-tpn:${TOP_ON_VERSION_NAME}",
+            topon_splash      : "com.anythink.sdk:splash-tpn:${TOP_ON_VERSION_NAME}",
+            topon_dmvp        : "com.anythink.sdk:dm-vp-tpn:${TOP_ON_VERSION_NAME}",
+            tradplus          : "com.tradplusad:tradplus:${TRAD_PLUS_VERSION_NAME}"
+    ]
+}

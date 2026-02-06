@@ -1,0 +1,39 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+
+apply from: '../../build-script/carty.gradle'
+
+android {
+    namespace 'io.carty.bidad.sdk.topon'
+    compileSdk libs.versions.compileSdk.get().toInteger()
+
+    defaultConfig {
+        minSdk libs.versions.minSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
+
+        consumerProguardFiles "consumer-rules.pro"
+
+        buildConfigField "String", "NETWORK_VERSION_NAME", "\"${TOP_ON_VERSION_NAME}\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation libs.androidx.appcompat
+    implementation libs.material
+
+    compileOnly deps.topon_core
+    compileOnly deps.topon_native
+    compileOnly deps.topon_banner
+    compileOnly deps.topon_interstitial
+    compileOnly deps.topon_reward
+    compileOnly deps.topon_splash
+    compileOnly deps.topon_dmvp
+}

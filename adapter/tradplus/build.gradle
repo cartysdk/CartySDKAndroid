@@ -1,24 +1,20 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.android.library)
 }
 
-apply from: '../build-script/carty.gradle'
+apply from: '../../build-script/carty.gradle'
 
 android {
-    namespace 'io.carty.bidad.demo'
+    namespace 'io.carty.bidad.sdk.tradplus'
     compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        applicationId "io.carty.bidad.android.demo"
         minSdk libs.versions.minSdk.get().toInteger()
         targetSdk libs.versions.targetSdk.get().toInteger()
-        versionCode 1
-        versionName "1.0"
 
-        ndk {
-            abiFilters = ['x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a']
-        }
+        consumerProguardFiles "consumer-rules.pro"
+
+        buildConfigField "String", "NETWORK_VERSION_NAME", "\"${TRAD_PLUS_VERSION_NAME}\""
     }
 
     buildTypes {
@@ -30,8 +26,8 @@ android {
 }
 
 dependencies {
-    implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.material
-    implementation libs.coil
+
+    compileOnly deps.tradplus
 }
