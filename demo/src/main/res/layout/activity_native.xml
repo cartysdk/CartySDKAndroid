@@ -6,11 +6,18 @@
     android:paddingHorizontal="20dp"
     android:paddingVertical="10dp">
 
+    <Switch
+        android:id="@+id/template_sw"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="template" />
+
     <Button
         android:id="@+id/load_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/drawable_carty_btn"
         android:stateListAnimator="@animator/anim_carty_btn"
         android:text="load"

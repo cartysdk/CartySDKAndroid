@@ -20,7 +20,7 @@ class NativeActivity : BaseActivity(), CTNativeLoadListener, CTNativeAdListener 
     private lateinit var nativeLayout: View
     private lateinit var nativeBinding: LayoutNativeBinding
     private var ctNative: CTNative? = null
-    private val placementId = NATIVE_PLACEMENT_ID
+    private var placementId = NATIVE_PLACEMENT_ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +29,14 @@ class NativeActivity : BaseActivity(), CTNativeLoadListener, CTNativeAdListener 
 
         nativeLayout = layoutInflater.inflate(R.layout.layout_native, null, false)
         nativeBinding = LayoutNativeBinding.bind(nativeLayout)
+
+        binding.templateSw.setOnCheckedChangeListener { btn, isCheck ->
+            if (isCheck) {
+                placementId = NATIVE_EXPRESS_PLACEMENT_ID
+            } else {
+                placementId = NATIVE_PLACEMENT_ID
+            }
+        }
 
         binding.loadBtn.setOnClickListener {
             loadAd()
@@ -49,6 +57,19 @@ class NativeActivity : BaseActivity(), CTNativeLoadListener, CTNativeAdListener 
     }
 
     override fun onLoaded(baseAd: CTBaseAd?) {
+        val nativeExpressView = ctNative?.getNativeAdView(this, this)
+        if (nativeExpressView != null) {
+            binding.adContainer.addView(
+                nativeExpressView,
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            )
+            showToast("nativeExpressView")
+            return
+        }
+
         baseAd?.run {
             val nativeInfo = baseAd.nativeInfo
             nativeInfo?.run {

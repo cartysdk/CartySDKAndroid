@@ -12,6 +12,7 @@ open class BaseActivity : AppCompatActivity() {
 
     companion object {
         const val NATIVE_PLACEMENT_ID = "281217152610"
+        const val NATIVE_EXPRESS_PLACEMENT_ID = "281217152611"
         const val INTERSTITIAL_PLACEMENT_ID = "281217152620"
         const val SPLASH_PLACEMENT_ID = "281217152630"
         const val BANNER_PLACEMENT_ID = "281217152640"
