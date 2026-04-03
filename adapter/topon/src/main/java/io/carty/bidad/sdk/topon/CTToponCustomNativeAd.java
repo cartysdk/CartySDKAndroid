@@ -21,11 +21,15 @@ public class CTToponCustomNativeAd extends CustomNativeAd implements CTNativeAdL
     private CTNative mCTNative;
     private CTBaseAd mBaseAd;
     private Context mContext;
+    private View mExpressView;
 
     public CTToponCustomNativeAd(Context context, CTNative ctNative, CTBaseAd baseAd) {
         this.mContext = context;
         this.mCTNative = ctNative;
         this.mBaseAd = baseAd;
+        if (mCTNative != null) {
+            mExpressView = mCTNative.getNativeAdView(context, this);
+        }
         setAdData();
     }
 
@@ -56,6 +60,9 @@ public class CTToponCustomNativeAd extends CustomNativeAd implements CTNativeAdL
     @Override
     public View getAdMediaView(Object... object) {
         Log.i(CTToponMediation.TAG, "native getMediaView");
+        if (isNativeExpress()) {
+            return mExpressView;
+        }
         if (mCTNative != null && mContext != null) {
             return mCTNative.getMediaView(mContext);
         }
@@ -65,6 +72,10 @@ public class CTToponCustomNativeAd extends CustomNativeAd implements CTNativeAdL
     @Override
     public void prepare(View view, ATNativePrepareInfo nativePrepareInfo) {
         Log.i(CTToponMediation.TAG, "native prepare");
+        if (isNativeExpress()) {
+            Log.i(CTToponMediation.TAG, "native express do not registerViewForInteraction");
+            return;
+        }
         List<View> clickViewList = nativePrepareInfo.getClickViewList();
         View container = nativePrepareInfo.getParentView();
         if (container instanceof ViewGroup) {
@@ -84,7 +95,7 @@ public class CTToponCustomNativeAd extends CustomNativeAd implements CTNativeAdL
 
     @Override
     public boolean isNativeExpress() {
-        return false;
+        return mExpressView != null;
     }
 
     @Override

@@ -4,15 +4,19 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.tradplus.ads.base.adapter.TPBaseAdapter;
 import com.tradplus.ads.base.common.TPError;
+import com.tradplus.ads.base.network.response.ConfigResponse;
 import com.tradplus.ads.open.TradPlusSdk;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import io.carty.bidad.sdk.openapi.CTAdConfig;
 import io.carty.bidad.sdk.openapi.CTAdError;
 import io.carty.bidad.sdk.openapi.CTAdRequest;
 import io.carty.bidad.sdk.openapi.CTAdSdk;
+import io.carty.bidad.sdk.openapi.CTBaseAd;
 import io.carty.bidad.sdk.openapi.CTGlobalSettings;
 
 public class CTTradPlusMediation {
@@ -100,5 +104,35 @@ public class CTTradPlusMediation {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public static void onC2SBiddingSuccess(CTBaseAd ctBaseAd, TPBaseAdapter.OnC2STokenListener listener) {
+        if (ctBaseAd != null && listener != null) {
+            Map<String, Object> map = new HashMap<>();
+            // key "ecpm" value double
+            double ecpm = ctBaseAd.getEcpm();
+            Log.i(TAG, "onC2SBiddingSuccess ecpm:" + ecpm);
+            map.put("ecpm", ecpm);
+            listener.onC2SBiddingResult(map);
+        }
+    }
+
+    public static void onC2SBiddingFailed(CTAdError error, TPBaseAdapter.OnC2STokenListener listener) {
+        if (listener != null) {
+            String errorMsg = "";
+            if (error != null) {
+                errorMsg = "code:" + error.getErrorCode() + " msg:" + error.getErrorMsg();
+                Log.i(TAG, "onC2SBiddingFailed errorMsg:" + errorMsg);
+                listener.onC2SBiddingFailed("", errorMsg);
+            }
+        }
+    }
+
+    public static String getSecondPrice(ConfigResponse.WaterfallBean waterfallBean) {
+        try {
+            return waterfallBean.getPayLoadInfo().getSecondPrice();
+        } catch (Throwable e) {
+            return "";
+        }
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.util.Pair;
 
+import com.secmtp.sdk.core.api.ATBiddingListener;
 import com.secmtp.sdk.core.api.ATInitMediation;
 import com.secmtp.sdk.nativead.unitgroup.api.CustomNativeAdapter;
 
@@ -21,6 +22,17 @@ public class CTToponNativeAd extends CustomNativeAdapter implements CTNativeLoad
     private String mUnitId;
     private CTNative mCTNative;
     private Context mContext;
+    private boolean mC2SBidding;
+    private ATBiddingListener mBiddingListener;
+
+    @Override
+    public boolean startBiddingRequest(Context context, Map<String, Object> serverExtra, Map<String, Object> localExtra, ATBiddingListener biddingListener) {
+        Log.i(CTToponMediation.TAG, "native startBiddingRequest");
+        mC2SBidding = true;
+        this.mBiddingListener = biddingListener;
+        loadCustomNetworkAd(context, serverExtra, localExtra);
+        return true;
+    }
 
     @Override
     public boolean setUserDataConsent(Context context, boolean isConsent, boolean isEUTraffic) {
@@ -75,8 +87,13 @@ public class CTToponNativeAd extends CustomNativeAdapter implements CTNativeLoad
 
     @Override
     public void onLoaded(CTBaseAd baseAd) {
-        if (mLoadListener != null) {
-            mLoadListener.onAdCacheLoaded(new CTToponCustomNativeAd(mContext, mCTNative, baseAd));
+        CTToponCustomNativeAd nativeAd = new CTToponCustomNativeAd(mContext, mCTNative, baseAd);
+        if (mC2SBidding) {
+            CTToponMediation.onC2SBiddingSuccess(mCTNative, baseAd, mBiddingListener, nativeAd);
+        } else {
+            if (mLoadListener != null) {
+                mLoadListener.onAdCacheLoaded(nativeAd);
+            }
         }
     }
 
@@ -87,8 +104,12 @@ public class CTToponNativeAd extends CustomNativeAdapter implements CTNativeLoad
 
     private void onAdLoadFailed(CTAdError adError) {
         Pair<String, String> errorPair = CTToponMediation.getAdError(adError);
-        if (mLoadListener != null) {
-            mLoadListener.onAdLoadError(errorPair.first, errorPair.second);
+        if (mC2SBidding) {
+            CTToponMediation.onC2SBiddingFailed(adError, mBiddingListener);
+        } else {
+            if (mLoadListener != null) {
+                mLoadListener.onAdLoadError(errorPair.first, errorPair.second);
+            }
         }
     }
 }

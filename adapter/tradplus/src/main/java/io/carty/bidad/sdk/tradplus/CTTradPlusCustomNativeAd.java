@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import com.tradplus.ads.base.adapter.nativead.TPNativeAdView;
 import com.tradplus.ads.base.bean.TPBaseAd;
+import com.tradplus.ads.base.network.response.ConfigResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +23,17 @@ public class CTTradPlusCustomNativeAd extends TPBaseAd implements CTNativeAdList
     private Context mContext;
     private CTNative mCTNative;
     private CTBaseAd mBaseAd;
+    private View mExpressView;
+    private ConfigResponse.WaterfallBean mWaterFallBean;
 
-    public CTTradPlusCustomNativeAd(Context context, CTNative ctNative, CTBaseAd baseAd) {
+    public CTTradPlusCustomNativeAd(Context context, CTNative ctNative, CTBaseAd baseAd, ConfigResponse.WaterfallBean waterfallBean) {
         this.mContext = context;
         this.mCTNative = ctNative;
         this.mBaseAd = baseAd;
+        this.mWaterFallBean = waterfallBean;
+        if (mCTNative != null) {
+            mExpressView = mCTNative.getNativeAdView(context, this);
+        }
     }
 
     @Override
@@ -37,6 +44,10 @@ public class CTTradPlusCustomNativeAd extends TPBaseAd implements CTNativeAdList
     @Override
     public void registerClickView(ViewGroup viewGroup, ArrayList<View> arrayList) {
         Log.i(CTTradPlusMediation.TAG, "native registerClickView");
+        if (getNativeAdType() == AD_TYPE_NATIVE_EXPRESS) {
+            Log.i(CTTradPlusMediation.TAG, "native express do not registerViewForInteraction");
+            return;
+        }
         if (mCTNative != null) {
             mCTNative.registerViewForInteraction(viewGroup, arrayList, this);
         }
@@ -76,12 +87,12 @@ public class CTTradPlusCustomNativeAd extends TPBaseAd implements CTNativeAdList
 
     @Override
     public int getNativeAdType() {
-        return AD_TYPE_NORMAL_NATIVE;
+        return (mExpressView == null ? AD_TYPE_NORMAL_NATIVE : AD_TYPE_NATIVE_EXPRESS);
     }
 
     @Override
     public View getRenderView() {
-        return null;
+        return mExpressView;
     }
 
     @Override
@@ -100,12 +111,18 @@ public class CTTradPlusCustomNativeAd extends TPBaseAd implements CTNativeAdList
             mCTNative.destroy();
         }
         mContext = null;
+        mWaterFallBean = null;
     }
 
     @Override
     public void onShown(CTBaseAd baseAd) {
         if (mShowListener != null) {
             mShowListener.onAdShown();
+        }
+        if (mCTNative != null) {
+            String secondPrice = CTTradPlusMediation.getSecondPrice(mWaterFallBean);
+            Log.i(CTTradPlusMediation.TAG, "setWinNotifications secondPrice:" + secondPrice);
+            mCTNative.onC2SBiddingSuccess(secondPrice, null);
         }
     }
 

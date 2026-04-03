@@ -19,9 +19,24 @@ public class CTTradPlusBanner extends TPBannerAdapter implements CTBannerAdListe
 
     private TPBannerAdImpl mBannerAdImpl;
     private CTBannerView mBannerView;
+    private OnC2STokenListener mOnC2STokenListener;
+    private boolean mC2SBidding, mC2SBiddingLoaded;
+
+    @Override
+    public void getC2SBidding(Context context, Map<String, Object> userParams, Map<String, String> tpParams, OnC2STokenListener onC2STokenListener) {
+        Log.i(CTTradPlusMediation.TAG, "banner getC2SBidding");
+        this.mC2SBidding = true;
+        this.mC2SBiddingLoaded = false;
+        this.mOnC2STokenListener = onC2STokenListener;
+        loadCustomAd(context, userParams, tpParams);
+    }
 
     @Override
     public void loadCustomAd(Context context, Map<String, Object> userParams, Map<String, String> tpParams) {
+        if (mC2SBidding && mC2SBiddingLoaded) {
+            onAdLoaded();
+            return;
+        }
         Log.i(CTTradPlusMediation.TAG, "loadBanner");
         CTTradPlusMediation.init(context, tpParams, new CTAdSdk.CTInitListener() {
             @Override
@@ -61,6 +76,15 @@ public class CTTradPlusBanner extends TPBannerAdapter implements CTBannerAdListe
     }
 
     @Override
+    public void setLossNotifications(String auctionPrice, String auctionPriceCny, String lossReason) {
+        Log.i(CTTradPlusMediation.TAG, "setLossNotifications auctionPrice:" + auctionPrice
+                + " auctionPriceCny:" + auctionPriceCny + " lossReason:" + lossReason);
+        if (mBannerView != null) {
+            mBannerView.onC2SBiddingFailed(auctionPrice, null);
+        }
+    }
+
+    @Override
     public void clean() {
         if (mBannerView != null) {
             mBannerView.destroy();
@@ -79,6 +103,15 @@ public class CTTradPlusBanner extends TPBannerAdapter implements CTBannerAdListe
 
     @Override
     public void onLoaded(CTBaseAd baseAd) {
+        if (mC2SBidding) {
+            mC2SBiddingLoaded = true;
+            CTTradPlusMediation.onC2SBiddingSuccess(baseAd, mOnC2STokenListener);
+        } else {
+            onAdLoaded();
+        }
+    }
+
+    private void onAdLoaded() {
         mBannerAdImpl = new TPBannerAdImpl(null, mBannerView);
         if (mLoadAdapterListener != null) {
             mLoadAdapterListener.loadAdapterLoaded(mBannerAdImpl);
@@ -87,6 +120,14 @@ public class CTTradPlusBanner extends TPBannerAdapter implements CTBannerAdListe
 
     @Override
     public void onLoadFailed(CTAdError adError) {
+        if (mC2SBidding) {
+            CTTradPlusMediation.onC2SBiddingFailed(adError, mOnC2STokenListener);
+        } else {
+            onAdLoadFailed(adError);
+        }
+    }
+
+    private void onAdLoadFailed(CTAdError adError) {
         if (mLoadAdapterListener != null) {
             mLoadAdapterListener.loadAdapterLoadFailed(CTTradPlusMediation.getAdError(adError));
         }
@@ -103,6 +144,11 @@ public class CTTradPlusBanner extends TPBannerAdapter implements CTBannerAdListe
     public void onShown(CTBaseAd baseAd) {
         if (mBannerAdImpl != null) {
             mBannerAdImpl.adShown();
+        }
+        if (mBannerView != null) {
+            String secondPrice = CTTradPlusMediation.getSecondPrice(getWaterfallBean());
+            Log.i(CTTradPlusMediation.TAG, "setWinNotifications secondPrice:" + secondPrice);
+            mBannerView.onC2SBiddingSuccess(secondPrice, null);
         }
     }
 

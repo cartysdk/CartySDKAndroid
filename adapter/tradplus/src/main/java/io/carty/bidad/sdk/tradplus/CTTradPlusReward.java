@@ -17,9 +17,24 @@ import io.carty.bidad.sdk.openapi.reward.CTRewardAdListener;
 public class CTTradPlusReward extends TPRewardAdapter implements CTRewardAdListener {
 
     private CTReward mCTReward;
+    private OnC2STokenListener mOnC2STokenListener;
+    private boolean mC2SBidding, mC2SBiddingLoaded;
+
+    @Override
+    public void getC2SBidding(Context context, Map<String, Object> userParams, Map<String, String> tpParams, OnC2STokenListener onC2STokenListener) {
+        Log.i(CTTradPlusMediation.TAG, "reward getC2SBidding");
+        this.mC2SBidding = true;
+        this.mC2SBiddingLoaded = false;
+        this.mOnC2STokenListener = onC2STokenListener;
+        loadCustomAd(context, userParams, tpParams);
+    }
 
     @Override
     public void loadCustomAd(Context context, Map<String, Object> userParams, Map<String, String> tpParams) {
+        if (mC2SBidding && mC2SBiddingLoaded) {
+            onAdLoaded();
+            return;
+        }
         Log.i(CTTradPlusMediation.TAG, "loadReward");
         CTTradPlusMediation.init(context, tpParams, new CTAdSdk.CTInitListener() {
             @Override
@@ -41,6 +56,15 @@ public class CTTradPlusReward extends TPRewardAdapter implements CTRewardAdListe
         mCTReward = new CTReward(builder.build());
         mCTReward.setRewardAdListener(this);
         mCTReward.loadAd();
+    }
+
+    @Override
+    public void setLossNotifications(String auctionPrice, String auctionPriceCny, String lossReason) {
+        Log.i(CTTradPlusMediation.TAG, "setLossNotifications auctionPrice:" + auctionPrice
+                + " auctionPriceCny:" + auctionPriceCny + " lossReason:" + lossReason);
+        if (mCTReward != null) {
+            mCTReward.onC2SBiddingFailed(auctionPrice, null);
+        }
     }
 
     @Override
@@ -71,6 +95,15 @@ public class CTTradPlusReward extends TPRewardAdapter implements CTRewardAdListe
 
     @Override
     public void onLoaded(CTBaseAd baseAd) {
+        if (mC2SBidding) {
+            mC2SBiddingLoaded = true;
+            CTTradPlusMediation.onC2SBiddingSuccess(baseAd, mOnC2STokenListener);
+        } else {
+            onAdLoaded();
+        }
+    }
+
+    private void onAdLoaded() {
         if (mLoadAdapterListener != null) {
             mLoadAdapterListener.loadAdapterLoaded(null);
         }
@@ -78,6 +111,14 @@ public class CTTradPlusReward extends TPRewardAdapter implements CTRewardAdListe
 
     @Override
     public void onLoadFailed(CTAdError adError) {
+        if (mC2SBidding) {
+            CTTradPlusMediation.onC2SBiddingFailed(adError, mOnC2STokenListener);
+        } else {
+            onAdLoadFailed(adError);
+        }
+    }
+
+    private void onAdLoadFailed(CTAdError adError) {
         if (mLoadAdapterListener != null) {
             mLoadAdapterListener.loadAdapterLoadFailed(CTTradPlusMediation.getAdError(adError));
         }
@@ -94,6 +135,11 @@ public class CTTradPlusReward extends TPRewardAdapter implements CTRewardAdListe
     public void onShown(CTBaseAd baseAd) {
         if (mShowListener != null) {
             mShowListener.onAdShown();
+        }
+        if (mCTReward != null) {
+            String secondPrice = CTTradPlusMediation.getSecondPrice(getWaterfallBean());
+            Log.i(CTTradPlusMediation.TAG, "setWinNotifications secondPrice:" + secondPrice);
+            mCTReward.onC2SBiddingSuccess(secondPrice, null);
         }
     }
 

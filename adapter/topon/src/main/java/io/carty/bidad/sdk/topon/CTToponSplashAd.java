@@ -6,6 +6,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.ViewGroup;
 
+import com.secmtp.sdk.core.api.ATBiddingListener;
 import com.secmtp.sdk.core.api.ATInitMediation;
 import com.secmtp.sdk.core.api.AdError;
 import com.secmtp.sdk.core.api.ErrorCode;
@@ -25,6 +26,17 @@ public class CTToponSplashAd extends CustomSplashAdapter implements CTSplashAdLi
 
     private String mUnitId;
     private CTSplash mCTSplash;
+    private boolean mC2SBidding;
+    private ATBiddingListener mBiddingListener;
+
+    @Override
+    public boolean startBiddingRequest(Context context, Map<String, Object> serverExtra, Map<String, Object> localExtra, ATBiddingListener biddingListener) {
+        Log.i(CTToponMediation.TAG, "splash startBiddingRequest");
+        mC2SBidding = true;
+        this.mBiddingListener = biddingListener;
+        loadCustomNetworkAd(context, serverExtra, localExtra);
+        return true;
+    }
 
     @Override
     public boolean setUserDataConsent(Context context, boolean isConsent, boolean isEUTraffic) {
@@ -99,8 +111,12 @@ public class CTToponSplashAd extends CustomSplashAdapter implements CTSplashAdLi
 
     @Override
     public void onLoaded(CTBaseAd baseAd) {
-        if (mLoadListener != null) {
-            mLoadListener.onAdCacheLoaded();
+        if (mC2SBidding) {
+            CTToponMediation.onC2SBiddingSuccess(mCTSplash, baseAd, mBiddingListener, null);
+        } else {
+            if (mLoadListener != null) {
+                mLoadListener.onAdCacheLoaded();
+            }
         }
     }
 
@@ -111,8 +127,12 @@ public class CTToponSplashAd extends CustomSplashAdapter implements CTSplashAdLi
 
     private void onAdLoadFailed(CTAdError adError) {
         Pair<String, String> errorPair = CTToponMediation.getAdError(adError);
-        if (mLoadListener != null) {
-            mLoadListener.onAdLoadError(errorPair.first, errorPair.second);
+        if (mC2SBidding) {
+            CTToponMediation.onC2SBiddingFailed(adError, mBiddingListener);
+        } else {
+            if (mLoadListener != null) {
+                mLoadListener.onAdLoadError(errorPair.first, errorPair.second);
+            }
         }
     }
 

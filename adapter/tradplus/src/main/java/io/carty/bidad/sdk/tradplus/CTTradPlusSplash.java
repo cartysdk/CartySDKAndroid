@@ -19,9 +19,24 @@ public class CTTradPlusSplash extends TPSplashAdapter implements CTSplashAdListe
 
     private CTSplash mCTSplash;
     private Context mContext;
+    private OnC2STokenListener mOnC2STokenListener;
+    private boolean mC2SBidding, mC2SBiddingLoaded;
+
+    @Override
+    public void getC2SBidding(Context context, Map<String, Object> userParams, Map<String, String> tpParams, OnC2STokenListener onC2STokenListener) {
+        Log.i(CTTradPlusMediation.TAG, "splash getC2SBidding");
+        this.mC2SBidding = true;
+        this.mC2SBiddingLoaded = false;
+        this.mOnC2STokenListener = onC2STokenListener;
+        loadCustomAd(context, userParams, tpParams);
+    }
 
     @Override
     public void loadCustomAd(Context context, Map<String, Object> userParams, Map<String, String> tpParams) {
+        if (mC2SBidding && mC2SBiddingLoaded) {
+            onAdLoaded();
+            return;
+        }
         Log.i(CTTradPlusMediation.TAG, "load splashAd");
         this.mContext = context;
         CTTradPlusMediation.init(context, tpParams, new CTAdSdk.CTInitListener() {
@@ -46,6 +61,15 @@ public class CTTradPlusSplash extends TPSplashAdapter implements CTSplashAdListe
         mCTSplash = new CTSplash(builder.build());
         mCTSplash.setSplashAdListener(this);
         mCTSplash.loadAd();
+    }
+
+    @Override
+    public void setLossNotifications(String auctionPrice, String auctionPriceCny, String lossReason) {
+        Log.i(CTTradPlusMediation.TAG, "setLossNotifications auctionPrice:" + auctionPrice
+                + " auctionPriceCny:" + auctionPriceCny + " lossReason:" + lossReason);
+        if (mCTSplash != null) {
+            mCTSplash.onC2SBiddingFailed(auctionPrice, null);
+        }
     }
 
     @Override
@@ -84,6 +108,15 @@ public class CTTradPlusSplash extends TPSplashAdapter implements CTSplashAdListe
 
     @Override
     public void onLoaded(CTBaseAd baseAd) {
+        if (mC2SBidding) {
+            mC2SBiddingLoaded = true;
+            CTTradPlusMediation.onC2SBiddingSuccess(baseAd, mOnC2STokenListener);
+        } else {
+            onAdLoaded();
+        }
+    }
+
+    private void onAdLoaded() {
         if (mLoadAdapterListener != null) {
             mLoadAdapterListener.loadAdapterLoaded(null);
         }
@@ -91,6 +124,14 @@ public class CTTradPlusSplash extends TPSplashAdapter implements CTSplashAdListe
 
     @Override
     public void onLoadFailed(CTAdError adError) {
+        if (mC2SBidding) {
+            CTTradPlusMediation.onC2SBiddingFailed(adError, mOnC2STokenListener);
+        } else {
+            onAdLoadFailed(adError);
+        }
+    }
+
+    private void onAdLoadFailed(CTAdError adError) {
         if (mLoadAdapterListener != null) {
             mLoadAdapterListener.loadAdapterLoadFailed(CTTradPlusMediation.getAdError(adError));
         }
@@ -107,6 +148,11 @@ public class CTTradPlusSplash extends TPSplashAdapter implements CTSplashAdListe
     public void onShown(CTBaseAd baseAd) {
         if (mShowListener != null) {
             mShowListener.onAdShown();
+        }
+        if (mCTSplash != null) {
+            String secondPrice = CTTradPlusMediation.getSecondPrice(getWaterfallBean());
+            Log.i(CTTradPlusMediation.TAG, "setWinNotifications secondPrice:" + secondPrice);
+            mCTSplash.onC2SBiddingSuccess(secondPrice, null);
         }
     }
 

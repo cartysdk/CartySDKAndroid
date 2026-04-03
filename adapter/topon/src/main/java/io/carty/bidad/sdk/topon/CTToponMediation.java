@@ -5,14 +5,22 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
+import com.secmtp.sdk.core.api.ATAdConst;
+import com.secmtp.sdk.core.api.ATBiddingListener;
+import com.secmtp.sdk.core.api.ATBiddingNotice;
+import com.secmtp.sdk.core.api.ATBiddingResult;
 import com.secmtp.sdk.core.api.ATInitMediation;
+import com.secmtp.sdk.core.api.BaseAd;
 
 import java.util.Map;
+import java.util.UUID;
 
 import io.carty.bidad.sdk.openapi.CTAdConfig;
 import io.carty.bidad.sdk.openapi.CTAdError;
 import io.carty.bidad.sdk.openapi.CTAdSdk;
+import io.carty.bidad.sdk.openapi.CTBaseAd;
 import io.carty.bidad.sdk.openapi.CTGlobalSettings;
+import io.carty.bidad.sdk.openapi.interfaces.ICTBidding;
 
 public class CTToponMediation {
     public static final String TAG = "CTToponMediation";
@@ -55,5 +63,52 @@ public class CTToponMediation {
         }
 
         return new Pair<>(code, msg);
+    }
+
+    public static void onC2SBiddingSuccess(ICTBidding ctBidding, CTBaseAd ctBaseAd, ATBiddingListener listener, BaseAd baseAd) {
+        if (ctBaseAd != null && listener != null) {
+            double ecpm = ctBaseAd.getEcpm();
+            Log.i(TAG, "onC2SBiddingSuccess ecpm:" + ecpm);
+            ATBiddingNotice notice = new ATBiddingNotice() {
+                @Override
+                public void notifyBidWin(double costPrice, double secondPrice, Map<String, Object> extra) {
+                    Log.i(TAG, "notifyBidWin costPrice:" + costPrice + " secondPrice:"
+                            + secondPrice + " extra:" + extra);
+                    if (ctBidding != null) {
+                        ctBidding.onC2SBiddingSuccess(String.valueOf(secondPrice), extra);
+                    }
+                }
+
+                @Override
+                public void notifyBidLoss(String lossCode, double winPrice, Map<String, Object> extra) {
+                    Log.i(TAG, "notifyBidLoss lossCode:" + lossCode + " winPrice:"
+                            + winPrice + " extra:" + extra);
+                    if (ctBidding != null) {
+                        ctBidding.onC2SBiddingFailed(String.valueOf(winPrice), extra);
+                    }
+                }
+
+                @Override
+                public void notifyBidDisplay(boolean isWinner, double displayPrice) {
+                }
+
+                @Override
+                public ATAdConst.CURRENCY getNoticePriceCurrency() {
+                    return ATAdConst.CURRENCY.USD;
+                }
+            };
+            listener.onC2SBiddingResultWithCache(ATBiddingResult.success(ecpm, UUID.randomUUID().toString(), notice), baseAd);
+        }
+    }
+
+    public static void onC2SBiddingFailed(CTAdError error, ATBiddingListener listener) {
+        if (listener != null) {
+            String errorMsg = "";
+            if (error != null) {
+                errorMsg = "code:" + error.getErrorCode() + " msg:" + error.getErrorMsg();
+                Log.i(TAG, "onC2SBiddingFailed errorMsg:" + errorMsg);
+                listener.onC2SBiddingResultWithCache(ATBiddingResult.fail(errorMsg), null);
+            }
+        }
     }
 }
